@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#14040c">
+<title>我们的故事 ♡</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%92%97%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/story.css">
+<style>
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body.page-story { background: #14040c; }
+</style>
+</head>
+<body class="page-story">
+
+<div id="story" class="story is-open" aria-hidden="false"></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lb-close" id="lbClose" type="button" aria-label="关闭">×</button>
+  <img id="lbImg" alt="">
+  <p class="lb-cap" id="lbCap"></p>
+</div>
+
+<button class="music" id="musicBtn" type="button" aria-label="背景音乐"><span class="note">♪</span></button>
+<audio id="bgm" loop preload="auto"></audio>
+
+<script src="js/data.js"></script>
+<script src="js/story.js"></script>
+</body>
+</html>

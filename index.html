@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#ffd9e6">
+<title>一周年快乐 ♡</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%92%97%3C/text%3E%3C/svg%3E">
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    overflow:hidden;background:#ffe0e9;color:#4a2b31;
+    font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background-image:
+      radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.92), rgba(255,255,255,0) 55%),
+      linear-gradient(160deg,#ffd9e6 0%,#ffe6da 34%,#fff4dc 56%,#f4defa 78%,#ffd2e2 100%);
+    background-size:100% 100%,100% 100%;
+    -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  }
+  #aura{
+    position:fixed;left:50%;top:50%;width:70vmin;height:70vmin;transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(255,255,255,.6), rgba(255,214,230,.18) 45%, rgba(255,255,255,0) 70%);
+    pointer-events:none;
+  }
+  /* 二开：模仿视频里的手写体背景 */
+  .bg-script{
+    position:fixed;left:50%;top:44%;transform:translate(-50%,-50%) rotate(-7deg);
+    font-family:"Kaiti SC","STKaiti",KaiTi,"Songti SC",serif;
+    font-size:clamp(92px,28vw,240px);font-weight:700;letter-spacing:.06em;
+    color:rgba(224,62,98,.17);pointer-events:none;white-space:nowrap;z-index:0;
+  }
+  .bg-script.en{
+    top:66%;transform:translate(-50%,-50%) rotate(-5deg);
+    font-family:"Segoe Script","Brush Script MT","Lucida Handwriting",cursive;
+    font-size:clamp(34px,8.4vw,86px);font-weight:400;letter-spacing:.01em;
+    color:rgba(224,62,98,.24);
+  }
+  #stage{position:fixed;inset:0;transform-origin:50% 50%;will-change:transform}
+
+  /* ---------- 窗口（二开：改成视频里的浅色 ♡/× 小窗） ---------- */
+  .win{
+    position:absolute;left:0;top:0;width:var(--w);height:var(--h);
+    border-radius:var(--r);overflow:hidden;background:#fff;
+    transform-origin:50% 50%;will-change:transform,opacity;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.8) inset,
+      0 10px 22px rgba(120,52,72,.22),
+      0 2px 6px rgba(120,52,72,.14);
+  }
+  .win.hot{
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.95) inset,
+      0 12px 26px rgba(120,52,72,.26),
+      0 0 22px rgba(255,150,190,.55);
+  }
+  .tb{
+    height:var(--tbh);display:flex;align-items:center;justify-content:space-between;gap:var(--g);
+    padding:0 calc(var(--g)*1.2);
+    background:linear-gradient(#ffffff,#fff7fa);
+    border-bottom:1px solid rgba(190,120,145,.16);
+  }
+  .tb .heart{font-size:var(--fs2);line-height:1;color:#e46a8d;opacity:.9}
+  .tb .close{font-size:calc(var(--fs2)*1.15);line-height:1;color:#cf9db0}
+  /* 一层压一层贴过去，每扇只露出靠后的那一条；文字左对齐，让每句话的开头露在外面 */
+  .bd{
+    height:calc(100% - var(--tbh));display:flex;align-items:center;justify-content:flex-start;
+    padding:0 3px 0 6px;text-align:left;line-height:1.2;
+    background:linear-gradient(165deg,var(--c1),var(--c2));
+    color:var(--ct);font-size:var(--fs);font-weight:600;letter-spacing:0;
+    white-space:nowrap;overflow:hidden;
+  }
+  .win.main .bd{
+    background:linear-gradient(165deg,#ffffff,#fff4f8);
+    color:#7a2c46;letter-spacing:.06em;font-size:var(--fs);
+    justify-content:center;text-align:center;white-space:normal;padding:0 8px;
+    flex-direction:column;gap:2px;
+  }
+  .win.main .bd .sub{
+    font-family:"Segoe Script","Brush Script MT","Lucida Handwriting",cursive;
+    font-size:calc(var(--fs)*.62);font-weight:400;color:#c2708c;letter-spacing:.02em;
+  }
+  .win.main{
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.95) inset,
+      0 18px 40px rgba(120,52,72,.28),
+      0 0 42px rgba(255,140,180,.45);
+  }
+
+  /* ---------- 控件（二开：只留底部提示，其余入口见 css/story.css） ---------- */
+  .hint{
+    position:fixed;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));text-align:center;z-index:5;
+    color:rgba(122,44,70,.45);font-size:12px;letter-spacing:.18em;pointer-events:none;
+    transition:opacity .8s ease;
+  }
+  .hint.gone{opacity:0}
+  body.preview .hint{display:none}
+</style>
+<link rel="stylesheet" href="css/story.css">
+</head>
+<body>
+<div id="aura"></div>
+<div class="bg-script" aria-hidden="true">一周年</div>
+<div class="bg-script en" aria-hidden="true">Happy Anniversary</div>
+<div id="stage"></div>
+<div class="hint" id="hint">一句一句贴上去，贴成一颗心</div>
+
+<button class="skip" id="skipBtn" type="button">跳过动画</button>
+
+<!-- 二开：贴完爱心后的入口 -->
+<div class="after" id="after" aria-hidden="true">
+  <div class="after-card">
+    <p class="eyebrow" id="afterEyebrow">ONE YEAR WITH YOU</p>
+    <p class="after-to" id="afterTo"></p>
+    <h1 class="after-title" id="afterTitle">一周年快乐</h1>
+    <p class="after-sub" id="afterSub"></p>
+    <div class="after-actions">
+      <a class="btn-primary" id="cakeLink" href="cake.html">一起吹蜡烛 ♡</a>
+      <button class="btn-ghost" id="againBtn" type="button">再看一次</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+
+<script>
+(function(){
+  var PREVIEW = new URLSearchParams(location.search).has('preview');
+  if (PREVIEW) document.body.classList.add('preview');
+
+  var stage = document.getElementById('stage');
+  var hintEl = document.getElementById('hint');
+
+  // ==== 二开：文案全部来自 js/data.js ====
+  var G = window.GIFT || {};
+  var MAIN_MSG = G.mainMessage || '一周年快乐';
+  var FALLBACK_WISHES = ['喜欢你','每一天','都是你','早安','晚安','谢谢你','来我身边','一周年快乐'];
+  var WIN_TEXTS = (G.wishes && G.wishes.length) ? G.wishes.slice() : FALLBACK_WISHES.slice();
+
+  // ==== 二开：视频里的马卡龙配色（浅底 + 深字） ====
+  var PALETTE = [
+    ['#ffd9e6','#ffbcd4','#7a2c46'],
+    ['#d9f2e6','#b6e6cf','#1f5a45'],
+    ['#fff4d6','#ffe7ae','#6b4c12'],
+    ['#e8dcff','#d2bfff','#4a2b7a'],
+    ['#d9ecff','#b9dcff','#244a6b'],
+    ['#ffe3d1','#ffc9a8','#6b3a1f'],
+    ['#ffe0f0','#ffc2e0','#7a2c5a'],
+    ['#e6f7e6','#c6efc4','#2f5a2a']
+  ];
+
+  var heart = [], storm = [], all = [];
+  var S = 1, cx = 0, cy = 0, t0 = performance.now()/1000, baseW = 90, baseH = 48;
+  var texts = WIN_TEXTS;
+  var placeDt = 0.032, placeStart = 0.35, placeEnd = 4;
+  // 二开：贴满 → 心跳 → 炸开铺满 → 停留，不再自动循环回收
+  var BEAT_DUR = PREVIEW ? 1e9 : 4.0, SCATTER_DUR = 2.8;
+  var phase = 'place', phaseStart = 0, locked = false;
+
+  function heartPoint(t){
+    var s = Math.sin(t), c = Math.cos(t);
+    return [16*s*s*s, 13*c - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t) + 2];
+  }
+
+  // 按弧长均匀取点：参数 t 均匀采样时，尖点附近 x 是 t 的三次方，
+  // 一大串窗口会挤在同一个位置上堆成一坨。
+  var ARC_N = 2400, ARC_P = null, ARC_CUM = null, ARC_TOTAL = 0;
+  function buildArc(){
+    ARC_P = new Array(ARC_N+1);
+    ARC_CUM = new Array(ARC_N+1);
+    var k;
+    for (k=0; k<=ARC_N; k++) ARC_P[k] = heartPoint(k/ARC_N * Math.PI*2);
+    ARC_CUM[0] = 0;
+    for (k=1; k<=ARC_N; k++){
+      var dx = ARC_P[k][0]-ARC_P[k-1][0], dy = ARC_P[k][1]-ARC_P[k-1][1];
+      ARC_CUM[k] = ARC_CUM[k-1] + Math.sqrt(dx*dx + dy*dy);
+    }
+    ARC_TOTAL = ARC_CUM[ARC_N];
+  }
+  function atArc(s){
+    s = ((s % ARC_TOTAL) + ARC_TOTAL) % ARC_TOTAL;
+    var lo = 0, hi = ARC_N;
+    while (lo < hi-1){
+      var mid = (lo + hi) >> 1;
+      if (ARC_CUM[mid] <= s) lo = mid; else hi = mid;
+    }
+    var seg = ARC_CUM[hi] - ARC_CUM[lo] || 1;
+    var f = (s - ARC_CUM[lo]) / seg;
+    return [ARC_P[lo][0] + (ARC_P[hi][0]-ARC_P[lo][0])*f,
+            ARC_P[lo][1] + (ARC_P[hi][1]-ARC_P[lo][1])*f];
+  }
+
+  function easeOutBack(p){ var c1 = 1.1, c3 = c1 + 1; return 1 + c3*Math.pow(p-1,3) + c1*Math.pow(p-1,2); }
+  function easeOutCubic(p){ return 1 - Math.pow(1-p,3); }
+  function clamp01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+  function makeWin(w, h, cls){
+    var tbh = Math.max(9, h*0.30);
+    var el = document.createElement('div');
+    el.className = 'win' + (cls ? ' ' + cls : '');
+    el.style.setProperty('--w', w.toFixed(1) + 'px');
+    el.style.setProperty('--h', h.toFixed(1) + 'px');
+    el.style.setProperty('--r', Math.max(4, w*0.10).toFixed(1) + 'px');
+    el.style.setProperty('--tbh', tbh.toFixed(1) + 'px');
+    el.style.setProperty('--g', Math.max(2.5, w*0.045).toFixed(1) + 'px');
+    el.style.setProperty('--dot', Math.max(2.4, h*0.075).toFixed(1) + 'px');
+    el.style.setProperty('--fs', Math.max(6.5, h*0.20).toFixed(1) + 'px');
+    el.style.setProperty('--fs2', Math.max(6, h*0.16).toFixed(1) + 'px');
+    el.style.marginLeft = (-w/2).toFixed(1) + 'px';
+    el.style.marginTop  = (-h/2).toFixed(1) + 'px';
+    el.innerHTML = '<div class="tb"><span class="heart">&#9829;</span>' +
+                   '<span class="close">&#215;</span></div><div class="bd"></div>';
+    return el;
+  }
+  // 洗牌发色：每种颜色均匀出现，但相邻两扇不会撞色（视频里的配色就是随机跳的）
+  function shuffledPalette(n){
+    var bag = [];
+    while (bag.length < n){
+      var chunk = PALETTE.slice();
+      for (var i=chunk.length-1; i>0; i--){
+        var j = Math.floor(Math.random()*(i+1)), t = chunk[i];
+        chunk[i] = chunk[j]; chunk[j] = t;
+      }
+      bag = bag.concat(chunk);
+    }
+    return bag.slice(0, n);
+  }
+  function paint(rec, pal){
+    rec.bd.style.setProperty('--c1', pal[0]);
+    rec.bd.style.setProperty('--c2', pal[1]);
+    rec.bd.style.setProperty('--ct', pal[2]);
+  }
+
+  function build(){
+    var vw = innerWidth, vh = innerHeight;
+    var heartW = Math.min(vw * (vw < 680 ? 0.94 : 0.78), vh * (PREVIEW ? 0.74 : 0.84));
+    S  = heartW / 32;
+    cx = Math.round(vw/2);
+    cy = Math.round(vh/2 - (PREVIEW ? 0 : vh*0.015));
+
+    var w = baseW = Math.max(26, 4.4*S);
+    var h = baseH = Math.max(15, 2.8*S);
+    // 一圈窗口沿着心形曲线叠过去（视频里就是 heart_points(100) 一个点一个窗口）。
+    // 数量按「间距 ≈ 0.26 个窗口宽」来定，和视频里那 100 个的疏密程度相当，
+    // 露出来的那一条刚好能看清两三个字。
+    var N = Math.max(18, Math.round(ARC_TOTAL * S / (w * 0.26)));
+    if (PREVIEW) N = Math.min(N, 34);
+
+    stage.innerHTML = '';
+    heart = []; storm = []; all = [];
+    var frag = document.createDocumentFragment();
+    var idx = 0;
+    var bag = shuffledPalette(N);
+
+    var step = ARC_TOTAL / N, half = step * 0.22, gap = step * 0.58;
+
+    for (var i=0; i<N; i++){
+      var s = (i + 0.5) * step;
+      var cuspDist = Math.min(Math.min(s, ARC_TOTAL - s), Math.abs(s - ARC_TOTAL/2));
+      if (cuspDist < gap) continue;
+      var pt = atArc(s);
+      var px = cx + pt[0]*S, py = cy - pt[1]*S;
+
+      var a = atArc(s - half), b = atArc(s + half);
+      var rad = Math.atan2(-(b[1]-a[1]), (b[0]-a[0]));
+
+      // 尖点附近曲线很陡，整扇窗口摆在那里会有半个身子探进空腔，
+      // 越靠近尖点缩得越小，像丝带在急转弯处收窄。
+      var near = Math.exp(-Math.pow(cuspDist/(step*2.2), 2));
+      var k = 1 - 0.30 * near;
+      var el = makeWin(w*k, h*k);
+      var rec = {
+        el: el, bd: el.querySelector('.bd'), pal: bag[i],
+        hx: px, hy: py, hrot: rad * 180/Math.PI, hsc: 1,
+        sx: 0, sy: 0, srot: 0, ssc: 1,
+        ph: Math.random()*6.283, delay: 0, stormDelay: Math.random()*0.5,
+        bow: 1, spin: (Math.random()*2-1), hover: false, op: -1, hot: false,
+        storm: false, main: false
+      };
+      rec.delay = placeStart + heart.length * placeDt;
+      rec.i = idx++;
+      el.addEventListener('mouseenter', function(){ rec.hover = true; });
+      el.addEventListener('mouseleave', function(){ rec.hover = false; });
+      heart.push(rec); all.push(rec); frag.appendChild(el);
+    }
+
+    // 中间那扇主窗口
+    var cw = Math.max(76, 10.4*S), ch = Math.max(38, 3.8*S);
+    var cwin = makeWin(cw, ch, 'main');
+    cwin.style.setProperty('--fs', Math.max(9, ch*0.28).toFixed(1) + 'px');
+    var mrec = {
+      el: cwin, bd: cwin.querySelector('.bd'),
+      hx: cx, hy: cy - S*1.1, hrot: 0, hsc: 1,
+      sx: cx, sy: cy, srot: 0, ssc: 1,
+      ph: 1.7, delay: placeStart + heart.length*placeDt + 0.18, stormDelay: 0,
+      bow: 0, spin: 0, hover: false, op: -1, hot: false, storm: false, main: true
+    };
+    cwin.addEventListener('mouseenter', function(){ mrec.hover = true; });
+    cwin.addEventListener('mouseleave', function(){ mrec.hover = false; });
+    heart.push(mrec); all.push(mrec); frag.appendChild(cwin);
+    placeEnd = mrec.delay + 0.5;
+
+    // 散开时才出现的那批窗口，铺满整个屏幕
+    var stormN = PREVIEW ? 24 : (vw < 680 ? 44 : 78);
+    for (var j=0; j<stormN; j++){
+      (function(j){
+        var sel = makeWin(w, h);
+        var srec = {
+          el: sel, bd: sel.querySelector('.bd'),
+          hx: cx, hy: cy, hrot: 0, hsc: 1,
+          sx: 0, sy: 0, srot: 0, ssc: 1,
+          ph: Math.random()*6.283, delay: 9e9, stormDelay: Math.random()*0.5,
+          bow: 1, spin: (Math.random()*2-1), hover: false, op: -1, hot: false,
+          storm: true, main: false
+        };
+        paint(srec, PALETTE[(j*3 + 1) % PALETTE.length]);
+        srec.el.style.opacity = '0';
+        srec.el.addEventListener('mouseenter', function(){ srec.hover = true; });
+        srec.el.addEventListener('mouseleave', function(){ srec.hover = false; });
+        storm.push(srec); all.push(srec); frag.appendChild(sel);
+      })(j);
+    }
+    layoutStorm(vw, vh, w, h);
+    for (var q=0; q<heart.length; q++){
+      if (!heart[q].main) paint(heart[q], heart[q].pal);
+      heart[q].el.style.zIndex = String(10 + q);
+    }
+    for (var r=0; r<storm.length; r++) storm[r].el.style.zIndex = String(10 + heart.length + r);
+
+    stage.appendChild(frag);
+    applyTexts();
+    applyMsg();
+    setPhase('place', 0);
+    if (hintEl) hintEl.textContent = '一句一句贴上去，贴成一颗心';
+  }
+
+  // 散开的位置：按网格铺，再抖一下，保证整个屏幕都铺到
+  function layoutStorm(vw, vh, w, h){
+    var n = storm.length + heart.length;
+    var topPad = 14, botPad = PREVIEW ? 12 : 20;
+    var availH = vh - topPad - botPad;
+    var cols = Math.max(1, Math.round(Math.sqrt(n * vw / (availH * 1.6))));
+    var rows = Math.max(1, Math.ceil(n / cols));
+    var cellW = vw / cols, cellH = availH / rows;
+    var order = [];
+    for (var c=0; c<cols; c++) for (var r=0; r<rows; r++) order.push([c, r]);
+    for (var i=order.length-1; i>0; i--){
+      var j = Math.floor(Math.random()*(i+1)), tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+    }
+    var all2 = heart.concat(storm);
+    for (var q=0; q<all2.length && q<order.length; q++){
+      var rec = all2[q], cc = order[q];
+      var x = (cc[0] + 0.5)*cellW + (Math.random()-0.5)*cellW*0.6;
+      var y = topPad + (cc[1] + 0.5)*cellH + (Math.random()-0.5)*cellH*0.6;
+      rec.sx = Math.max(w*0.6, Math.min(vw - w*0.6, x));
+      rec.sy = Math.max(h*0.6 + topPad, Math.min(vh - botPad + h*0.4, y));
+      rec.srot = (Math.random()*2-1)*14;
+      rec.ssc  = 0.9 + Math.random()*0.35;
+      rec.bow  = (Math.random() < 0.5 ? -1 : 1) * (30 + Math.random()*60);
+    }
+  }
+
+  function applyTexts(){
+    var n = texts.length;
+    var lap = Math.max(1, Math.floor(n/3));
+    for (var i=0; i<all.length; i++){
+      var rec = all[i];
+      if (rec.main) continue;
+      var idx = (i + Math.floor(i/n)*lap) % n;
+      rec.bd.textContent = texts[idx];
+    }
+  }
+
+  function applyMsg(){
+    for (var i=0; i<all.length; i++){
+      if (!all[i].main) continue;
+      var bd = all[i].bd;
+      bd.innerHTML = '';
+      var line1 = document.createElement('span');
+      line1.textContent = MAIN_MSG + ' \u2661';
+      var line2 = document.createElement('span');
+      line2.className = 'sub';
+      line2.textContent = 'Happy Anniversary';
+      bd.appendChild(line1);
+      bd.appendChild(line2);
+    }
+    document.title = (G.to ? G.to + ' · ' : '') + MAIN_MSG;
+  }
+
+  function setPhase(p, t){
+    phase = p;
+    phaseStart = (t === undefined ? performance.now()/1000 - t0 : t);
+  }
+
+  // ==== 二开：入口卡上的日期 / 天数（爱心页自己算，不再依赖故事页） ====
+  function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+  function parseDate(str){
+    var m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(String(str || '').trim());
+    return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
+  }
+  function fmtDate(d, sep){
+    return d ? d.getFullYear() + sep + pad2(d.getMonth() + 1) + sep + pad2(d.getDate()) : '';
+  }
+  function applyAfterText(){
+    var nowD = new Date();
+    var start = parseDate(G.togetherDate) || new Date(nowD.getFullYear() - 1, nowD.getMonth(), nowD.getDate());
+    var a = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    var b = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate());
+    var days = Math.max(1, Math.round((b - a) / 86400000));
+    var title = document.getElementById('afterTitle');
+    if (title) title.textContent = MAIN_MSG;
+    var to = document.getElementById('afterTo');
+    if (to) to.textContent = '致 ' + (G.to || '亲爱的');
+    var sub = document.getElementById('afterSub');
+    if (sub) sub.innerHTML = fmtDate(start, '.') + ' — ' + fmtDate(nowD, '.') + '<span>相恋 ' + days + ' 天</span>';
+  }
+
+  function frame(now){
+    var t = now/1000 - t0;
+
+    if (!locked){
+      if (phase === 'place' && t > placeEnd) setPhase('beat', t);
+      else if (phase === 'beat' && t > phaseStart + BEAT_DUR) setPhase('scatter', t);
+      else if (phase === 'scatter' && t > phaseStart + SCATTER_DUR) { setPhase('rest', t); showAfter(); }
+    }
+    if (hintEl && phase !== 'place' && !hintEl.classList.contains('gone')) hintEl.classList.add('gone');
+
+    // 二开：心跳只在心还完整的时候跳；rest = 铺满后保持散开
+    var gMix = phase === 'scatter' ? clamp01((t - phaseStart)/0.9)
+             : phase === 'rest'    ? 1
+             : 0;
+    var x = (t % 1.15) / 1.15;
+    var g1 = Math.exp(-Math.pow((x-0.10)/0.050, 2));
+    var g2 = Math.exp(-Math.pow((x-0.30)/0.055, 2));
+    var amp = 0.05 * clamp01((t - placeEnd) / 0.9) * (1 - gMix);
+    stage.style.transform = 'scale(' + (1 + amp*(g1 + 0.55*g2)).toFixed(4) + ')';
+
+    for (var i=0; i<all.length; i++){
+      var wk = all[i];
+      var mix;
+
+      if (wk.storm){
+        mix = phase === 'scatter' ? clamp01((t - phaseStart - wk.stormDelay)/0.85)
+            : phase === 'rest'    ? 1
+            : 0;
+      } else if (wk.main){
+        mix = gMix;
+      } else {
+        mix = phase === 'scatter' ? clamp01((t - phaseStart - wk.stormDelay)/0.9)
+            : phase === 'rest'    ? 1
+            : 0;
+      }
+      var em = easeOutCubic(mix);
+
+      var px = wk.hx + (wk.sx - wk.hx)*em;
+      var py = wk.hy + (wk.sy - wk.hy)*em - Math.sin(Math.PI*em)*wk.bow;
+      var rot, sc;
+
+      if (phase === 'place' || (phase === 'beat' && !wk.storm)){
+        var p = clamp01((t - wk.delay) / 0.42);
+        var e = easeOutBack(p);
+        // 沿着轨迹滑到位：从上一个窗口的位置顺着切线贴过来
+        var back = (1 - e) * (wk.main ? 26 : 34);
+        px = wk.hx - Math.cos(wk.hrot*Math.PI/180) * back;
+        py = wk.hy - Math.sin(wk.hrot*Math.PI/180) * back;
+        rot = wk.hrot + (1-e)*22 + Math.sin(t*0.65 + wk.ph)*1.0;
+        sc  = (0.55 + 0.45*e);
+        var op = clamp01(p*3.4);
+        if (Math.abs(op - wk.op) > 0.02){ wk.el.style.opacity = op.toFixed(2); wk.op = op; }
+        var hot = p > 0.02 && p < 0.72;
+        if (hot !== wk.hot){ wk.el.classList.toggle('hot', hot); wk.hot = hot; }
+      } else {
+        rot = wk.hrot + (wk.srot - wk.hrot)*em + Math.sin(Math.PI*em)*22*wk.spin;
+        sc  = wk.hsc + (wk.ssc - wk.hsc)*em;
+        var op2 = wk.storm ? clamp01(mix*1.4) : 1 - gMix*0.0;
+        if (wk.main) op2 = 1 - gMix;                    // 主窗口散开时淡出
+        if (Math.abs(op2 - wk.op) > 0.02){ wk.el.style.opacity = op2.toFixed(2); wk.op = op2; }
+        if (wk.hot){ wk.el.classList.remove('hot'); wk.hot = false; }
+      }
+
+      var jx = Math.sin(t*0.9  + wk.ph) * 1.3 * (1-em);
+      var jy = Math.cos(t*1.15 + wk.ph) * 1.3 * (1-em);
+      sc *= (wk.hover ? 1.09 : 1);
+
+      wk.el.style.transform = 'translate3d(' + (px+jx).toFixed(1) + 'px,' + (py+jy).toFixed(1) + 'px,0) ' +
+                              'rotate(' + rot.toFixed(1) + 'deg) scale(' + sc.toFixed(3) + ')';
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function restart(){
+    locked = false;
+    hideAfter();
+    t0 = performance.now()/1000;
+    if (hintEl) hintEl.classList.remove('gone');
+    var skipReset = document.getElementById('skipBtn');
+    if (skipReset) skipReset.classList.remove('gone');
+    for (var i=0; i<all.length; i++){
+      var wk = all[i];
+      wk.ph = Math.random()*6.283;
+      wk.stormDelay = Math.random()*0.5;
+      if (!wk.storm) wk.delay = placeStart + i*placeDt;
+      wk.op = -1;
+    }
+    layoutStorm(innerWidth, innerHeight, baseW, baseH);
+    setPhase('place', 0);
+  }
+
+  // ==== 二开：炸开铺满之后，才出现「打开我们的故事」入口 ====
+  var afterEl = document.getElementById('after');
+
+  function showAfter(){
+    if (!afterEl) return;
+    afterEl.classList.add('is-in');
+    afterEl.setAttribute('aria-hidden', 'false');
+    var sk = document.getElementById('skipBtn');
+    if (sk) sk.classList.add('gone');
+  }
+  function hideAfter(){
+    if (!afterEl) return;
+    afterEl.classList.remove('is-in');
+    afterEl.setAttribute('aria-hidden', 'true');
+  }
+
+  function scatterNow(){
+    locked = false;
+    setPhase('scatter', performance.now()/1000 - t0);
+    var sk = document.getElementById('skipBtn');
+    if (sk) sk.classList.add('gone');
+  }
+
+  var skipBtn = document.getElementById('skipBtn');
+  if (skipBtn) skipBtn.addEventListener('click', scatterNow);
+  var againBtn = document.getElementById('againBtn');
+  if (againBtn) againBtn.addEventListener('click', restart);
+
+  var rt = null;
+  addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(function(){ build(); }, 180);
+  });
+
+  buildArc();
+  applyAfterText();
+  build();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
