@@ -113,7 +113,10 @@
   S.lowEnd = Math.min(window.innerWidth || 390, window.innerHeight || 844) < 640;
   /* 性能分级：low = 手机 / mid = 普通桌面 / high = 高分屏桌面
      掉帧时还会自动再降一档（见 tick 里的 adaptQuality） */
-  S.quality = S.lowEnd ? 'low' : ((window.devicePixelRatio || 1) > 2 ? 'high' : 'mid');
+  var weakDevice =
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4);
+  S.quality = (S.lowEnd || weakDevice) ? 'low' : ((window.devicePixelRatio || 1) > 2 ? 'high' : 'mid');
   S.dprCap = S.quality === 'low' ? 1.25 : (S.quality === 'mid' ? 1.5 : 1.75);
   debug.quality = S.quality;
 
