@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "20261107-0209-d242-看板自动登记验证": {"category": null, "created": "2026-11-07 02:09:54", "creator": "92396b0e-453c-4e09-985f-6e70ee3010bb", "creator_name": "验证用户", "finished": null, "owner": null, "owner_name": null, "started": null, "status": "open", "tags": ["验证"], "title": "看板自动登记验证", "updated": "2026-11-07 02:09:54", "worklog": "worklog/202611/07-0209-d242-看板自动登记验证.md"}
+  },
+  "version": "20261022000000"
+}
