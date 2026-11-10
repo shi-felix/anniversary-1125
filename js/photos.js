@@ -83,7 +83,7 @@
 
   function startWall(d) {
     var mobile = window.innerWidth < 720;
-    var delay = mobile ? (SLOW ? 1200 : 500) : 160;
+    var delay = mobile ? (SLOW ? 1000 : 300) : 160;
     var begin = function () {
       firstRowReady(function () {
         setTimeout(function () { whenThree(function () { initWall(d); }); }, delay);
@@ -266,39 +266,42 @@
           asp = Math.max(0.56, Math.min(1.9, asp));
           var w = CH * asp;
           var geo = new THREE.PlaneGeometry(w, CH);
-          var mat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 1, side: THREE.DoubleSide });
+          var mat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, side: THREE.DoubleSide });
           var mesh = new THREE.Mesh(geo, mat);
           var a = j * step + r * step * 0.5 + (r % 2 ? step * 0.25 : 0);
           mesh.position.set(Math.sin(a) * RADIUS, YS[r], Math.cos(a) * RADIUS);
           mesh.rotation.y = a + Math.PI;
           mesh.userData.baseY = YS[r];
+          mesh.visible = false;
           group.add(mesh);
-          queue.push({ p: p, mat: mat });
+          queue.push({ p: p, mat: mat, mesh: mesh });
         })(slice[j], j, r, step);
       }
     }
 
-    function applyTex(mat, tex) {
+    function applyTex(it, tex) {
       if (tex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined) {
         tex.colorSpace = THREE.SRGBColorSpace;
       } else if (tex.encoding !== undefined && THREE.sRGBEncoding !== undefined) {
         tex.encoding = THREE.sRGBEncoding;
       }
       tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-      mat.map = tex;
-      mat.needsUpdate = true;
+      it.mat.map = tex;
+      it.mat.opacity = 1;
+      it.mat.needsUpdate = true;
+      it.mesh.visible = true;
     }
 
-    var BATCH = mobile ? 5 : 8;
+    var BATCH = mobile ? 6 : 8;
 
     function pump() {
       // 环绕墙滚出屏幕后，别再跟下面的照片抢带宽
       if (!visible && queue.length) { setTimeout(pump, 400); return; }
       var batch = queue.splice(0, BATCH);
       batch.forEach(function (it) {
-        loader.load(wallSrc(it.p), function (tex) { applyTex(it.mat, tex); }, undefined, function () {
+        loader.load(wallSrc(it.p), function (tex) { applyTex(it, tex); }, undefined, function () {
           if (WEBP && it.p.smallWebp) {
-            loader.load(BASE + it.p.mini, function (tex) { applyTex(it.mat, tex); }, undefined, function () {});
+            loader.load(BASE + it.p.mini, function (tex) { applyTex(it, tex); }, undefined, function () {});
           }
         });
       });
