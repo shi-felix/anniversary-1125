@@ -558,15 +558,24 @@
     var prev = box.querySelector(".prev");
     var next = box.querySelector(".next");
 
+    var seq = 0;
     function show(i) {
       var list = LB.list;
       if (i < 0) i = list.length - 1;
       if (i >= list.length) i = 0;
       LB.i = i;
       var p = list[i];
+      var my = ++seq;
+      // 先用已经缓存的缩略图顶上，点开就有画面；大图到了再换
       img.classList.remove("ready");
-      img.src = BASE + p.full;
-      img.onload = function () { img.classList.add("ready"); };
+      img.src = thumbSrc(p);
+      img.classList.add("ready");
+      var big = new Image();
+      big.onload = function () {
+        if (my !== seq) return;
+        img.src = BASE + p.full;
+      };
+      big.src = BASE + p.full;
       meta.textContent = dotDate(p.date) + "　" + (i + 1) + " / " + list.length;
     }
 
