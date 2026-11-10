@@ -615,7 +615,7 @@
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
     var m = new THREE.PointsMaterial({
-      size: 0.2, sizeAttenuation: true, vertexColors: true,
+      size: 0.24, sizeAttenuation: true, vertexColors: true, map: dotTex, alphaTest: 0.02,
       transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false
     });
     var pts = new THREE.Points(g, m);
@@ -669,7 +669,7 @@
   /* ============================================================
    *  氛围层：背景光斑 + 蛋糕周围闪烁星点（加法混合，吃泛光）
    * ============================================================ */
-  var ambience = null, glowTex = null;
+  var ambience = null, glowTex = null, dotTex = null;
 
   function buildAmbience() {
     var bokehTex = (function () {
@@ -713,6 +713,18 @@
       g.addColorStop(0.28, 'rgba(255,214,190,0.62)');
       g.addColorStop(1, 'rgba(255,160,150,0)');
       x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+      return new THREE.CanvasTexture(c);
+    })();
+
+    /* 烟花粒子的圆点贴图（默认方点太像像素块） */
+    dotTex = (function () {
+      var c = document.createElement('canvas'); c.width = c.height = 64;
+      var x = c.getContext('2d');
+      var g2 = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g2.addColorStop(0, 'rgba(255,255,255,1)');
+      g2.addColorStop(0.45, 'rgba(255,255,255,0.72)');
+      g2.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g2; x.fillRect(0, 0, 64, 64);
       return new THREE.CanvasTexture(c);
     })();
 
