@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#170911">
+<title>我们的瞬间 · 照片集</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%92%97%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/photos.css">
+</head>
+<body>
+
+<a class="back" href="story.html">← 回到故事</a>
+
+<!-- 效果①：环绕照片墙 -->
+<section class="hero" id="hero">
+  <canvas id="wall" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <p class="kicker">OUR YEAR</p>
+    <h1>我们的 <b id="n">111</b> 个瞬间</h1>
+    <p class="range" id="range">2025.11 — 2026.10</p>
+  </div>
+  <div class="hint"><span>拖动旋转</span><i></i><span>向下滑继续</span></div>
+</section>
+
+<!-- 效果②：杂志式照片集 -->
+<section class="mag" id="mag">
+  <header class="mag-head">
+    <p class="kicker">BY MONTH</p>
+    <h2>这一年，我们这样走过</h2>
+    <p class="sub">按拍摄日期自动排好，点开看大图</p>
+  </header>
+  <div id="months"></div>
+</section>
+
+<!-- 效果③：翻卡片 -->
+<section class="stack-wrap" id="stackAct">
+  <div class="stack-head">
+    <p class="kicker">ONE BY ONE</p>
+    <h2>一张一张地翻</h2>
+    <p class="sub">左右拖动，每次一张</p>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="bar">
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="count" id="count"></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <p class="more">还有更多，都在故事里</p>
+  <a href="story.html">回到我们的故事 →</a>
+</footer>
+
+<div id="lb" role="dialog" aria-modal="true">
+  <span class="lb-close">×</span>
+  <span class="lb-nav prev">‹</span>
+  <img alt="">
+  <span class="lb-nav next">›</span>
+  <div class="lb-meta"></div>
+</div>
+
+<script src="vendor/three/three.min.js"></script>
+<script src="js/photos.js"></script>
+</body>
+</html>

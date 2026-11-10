@@ -37,6 +37,7 @@ window.GIFT = {
   /* ---- 资源 ---- */
   music: 'assets/music/bgm.mp3',
   photoDir: 'assets/photos/',
+  photoCount: 111,
 
   /* ---- 小弹窗上的短句（会循环贴到心形上）---- */
   wishes: [
@@ -266,15 +267,17 @@ window.GIFT = {
   ],
 
   /* ---- 照片墙 ----
-     把照片放进 assets/photos/，file 改成文件名（建议 3:4 竖图）。
-     没有照片时会自动显示粉色占位卡片。 */
+     图片在 assets/photos/thumb/ 下（网页用的 560px 缩略图）。
+     想换照片就改 file（对应 thumb/ 里的文件名），caption 是想显示的一行小字。 */
   photos: [
-    { file: 'photo-1.jpg', caption: '第一次一起出门' },
-    { file: 'photo-2.jpg', caption: '在柳州' },
-    { file: 'photo-3.jpg', caption: '你笑起来的样子' },
-    { file: 'photo-4.jpg', caption: '一起逛超市的晚上' },
-    { file: 'photo-5.jpg', caption: '我们的日常' },
-    { file: 'photo-6.jpg', caption: '我们的第一张合照' },
+    { file: 'thumb/001.jpg', caption: '2025.11.21' },
+    { file: 'thumb/069.jpg', caption: '2025.12.18' },
+    { file: 'thumb/010.jpg', caption: '2025.12.31' },
+    { file: 'thumb/072.jpg', caption: '2026.01.21' },
+    { file: 'thumb/090.jpg', caption: '2026.02.05' },
+    { file: 'thumb/037.jpg', caption: '2026.04.04' },
+    { file: 'thumb/100.jpg', caption: '2026.05.14' },
+    { file: 'thumb/107.jpg', caption: '2026.10.08' },
   ],
 
   /* ---- 我们一起做过的小事（done: true = 做过了） ---- */

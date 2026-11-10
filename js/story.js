@@ -213,7 +213,8 @@
     add('一年数据档案', buildNumbers());
     add('关于她的小档案', buildAboutHer());
     add('我们的点点滴滴', buildMoments());
-    add('照片里的我们', '<div class="photos" id="photos"></div>');
+    add('照片里的我们', '<div class="photos" id="photos"></div>' +
+      '<a class="photos-more" href="photos.html">看全部 ' + (G.photoCount || 111) + ' 张 →</a>');
     add('一起做的小事', buildSmallThings());
     add(
       '写给你的一封信',

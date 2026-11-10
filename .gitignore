@@ -5,3 +5,10 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# 照片筛选只在本机跑，不进仓库
+.facelib/
+她的照片/
+预览/
+_demo/
+.memsearch/
