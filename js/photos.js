@@ -11,6 +11,38 @@
   var DATA = null;
   var LB = { list: [], i: 0, open: false };
 
+  /* WebP 体积大概是 JPEG 的四成，手机流量下差别很明显 */
+  var WEBP = (function () {
+    try {
+      var c = document.createElement("canvas");
+      c.width = c.height = 1;
+      return c.toDataURL("image/webp").indexOf("image/webp") > 0;
+    } catch (e) { return false; }
+  })();
+
+  function thumbSrc(p) { return BASE + (WEBP && p.thumbWebp ? p.thumbWebp : p.thumb); }
+  function miniSrc(p) { return BASE + (WEBP && p.miniWebp ? p.miniWebp : p.mini); }
+  /* 环绕墙上的照片屏幕上只有 150~240px，用 240 那档就够 */
+  function wallSrc(p) { return BASE + (WEBP && p.smallWebp ? p.smallWebp : p.mini); }
+
+  /* 弱网就不铺满整圈，也别急着拉 three.js */
+  var CONN = navigator.connection || {};
+  var SLOW = CONN.saveData === true || /(^|-)2g$|3g/.test(CONN.effectiveType || "");
+
+  /* 装真图：webp 失败自动退回 jpg */
+  function fill(img) {
+    var src = img.getAttribute("data-src");
+    var fb = img.getAttribute("data-fallback");
+    if (!src) return;
+    if (fb) {
+      img.onerror = function () {
+        img.onerror = null;
+        img.src = fb;
+      };
+    }
+    img.src = src;
+  }
+
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
   function monthLabel(k) {
     var a = k.split("-");
@@ -22,6 +54,26 @@
   }
 
   /* ---------------- 启动 ---------------- */
+  /* three.js 有 589 KB，先让照片把屏占满，再把它拉下来做环绕墙 */
+  function whenThree(cb) {
+    if (window.THREE) { cb(); return; }
+    var s = document.createElement("script");
+    s.src = "vendor/three/three.min.js";
+    s.async = true;
+    s.onload = function () { cb(); };
+    document.head.appendChild(s);
+  }
+
+  function startWall(d) {
+    var mobile = window.innerWidth < 720;
+    var delay = mobile ? (SLOW ? 1500 : 800) : 160;
+    var go = function () {
+      setTimeout(function () { whenThree(function () { initWall(d); }); }, delay);
+    };
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+  }
+
   function boot() {
     fetch(BASE + "photos.json")
       .then(function (r) { return r.json(); })
@@ -33,7 +85,7 @@
         buildMagazine(d);
         buildStack(d);
         initLightbox();
-        initWall(d);
+        startWall(d);
         initHeroFade();
       })
       .catch(function (e) { console.error("照片数据加载失败", e); });
@@ -43,6 +95,7 @@
    *  效果②：杂志式照片集
    * ====================================================== */
   var magLastW = 0;
+  var magIO = null;
 
   function buildMagazine(d) {
     var host = $("#months");
@@ -77,10 +130,10 @@
         delay += 22;
         cell.dataset.id = p.id;
         var img = document.createElement("img");
-        img.loading = "lazy";
         img.decoding = "async";
-        img.src = BASE + p.thumb;
         img.alt = dotDate(p.date);
+        img.setAttribute("data-src", thumbSrc(p));
+        if (WEBP && p.thumbWebp) img.setAttribute("data-fallback", BASE + p.thumb);
         cell.appendChild(img);
         row.appendChild(cell);
       });
@@ -112,6 +165,23 @@
 
     host.innerHTML = "";
     host.appendChild(frag);
+
+    /* 自己控制预取距离：原生 loading=lazy 会一口气预取好几屏，手机流量下太亏 */
+    if (magIO) magIO.disconnect();
+    if ("IntersectionObserver" in window) {
+      magIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          magIO.unobserve(en.target);
+          fill(en.target);
+        });
+      }, { rootMargin: "420px 0px" });
+      Array.prototype.forEach.call(host.querySelectorAll("img[data-src]"), function (im) {
+        magIO.observe(im);
+      });
+    } else {
+      Array.prototype.forEach.call(host.querySelectorAll("img[data-src]"), fill);
+    }
 
     host.onclick = function (e) {
       var cell = e.target.closest(".cell");
@@ -149,7 +219,7 @@
     var YS = mobile ? [-2.28, 0, 2.28] : [-2.88, -0.96, 0.96, 2.88];
 
     var photos = d.photos.slice();
-    if (mobile) photos = photos.filter(function (_, i) { return i % 2 === 0; });
+    if (mobile && SLOW) photos = photos.filter(function (_, i) { return i % 2 === 0; });
 
     var loader = new THREE.TextureLoader();
     var per = Math.ceil(photos.length / ROWS);
@@ -181,7 +251,7 @@
           mesh.userData.baseY = YS[r];
           group.add(mesh);
 
-          loader.load(BASE + p.mini, function (tex) {
+          function applyTex(tex) {
             if (tex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined) {
               tex.colorSpace = THREE.SRGBColorSpace;
             } else if (tex.encoding !== undefined && THREE.sRGBEncoding !== undefined) {
@@ -190,7 +260,10 @@
             tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
             mat.map = tex;
             mat.needsUpdate = true;
-          }, undefined, function () {});
+          }
+          loader.load(wallSrc(p), applyTex, undefined, function () {
+            if (WEBP && p.smallWebp) loader.load(BASE + p.mini, applyTex, undefined, function () {});
+          });
         })(slice[j], j, r, step);
       }
     }
@@ -330,7 +403,12 @@
       for (var k = i - 1; k <= i + 2; k++) {
         if (k < 0 || k >= n) continue;
         var img = cards[k].querySelector("img");
-        if (!img.getAttribute("src")) img.src = BASE + photos[k].thumb;
+        if (!img.getAttribute("src")) {
+          var p = photos[k];
+          img.setAttribute("data-src", thumbSrc(p));
+          if (WEBP && p.thumbWebp) img.setAttribute("data-fallback", BASE + p.thumb);
+          fill(img);
+        }
       }
     }
 
