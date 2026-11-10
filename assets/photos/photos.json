@@ -1,6 +1,6 @@
 {
- "count": 111,
- "removed": 9,
+ "count": 109,
+ "removed": 11,
  "range": [
   "2025-11-21",
   "2026-10-08"
@@ -40,7 +40,7 @@
   },
   {
    "key": "2026-07",
-   "count": 3
+   "count": 1
   },
   {
    "key": "2026-08",
@@ -1337,30 +1337,6 @@
    "mini": "mini/064.jpg"
   },
   {
-   "id": 108,
-   "date": "2026-07-27",
-   "w": 1260,
-   "h": 2800,
-   "thumb": "thumb/065.jpg",
-   "full": "full/065.jpg",
-   "name": "Screenshot_20260727_140628.jpg",
-   "grade": "高置信",
-   "sim": 0.621,
-   "mini": "mini/065.jpg"
-  },
-  {
-   "id": 109,
-   "date": "2026-07-27",
-   "w": 1080,
-   "h": 1920,
-   "thumb": "thumb/108.jpg",
-   "full": "full/108.jpg",
-   "name": "wx_camera_1785117522080.jpg",
-   "grade": "高置信",
-   "sim": 0.676,
-   "mini": "mini/108.jpg"
-  },
-  {
    "id": 110,
    "date": "2026-08-03",
    "w": 1260,
@@ -1383,6 +1359,18 @@
    "grade": "高置信",
    "sim": 0.782,
    "mini": "mini/107.jpg"
+  }
+ ],
+ "private": [
+  {
+   "id": 108,
+   "name": "Screenshot_20260727_140628.jpg",
+   "date": "2026-07-27"
+  },
+  {
+   "id": 109,
+   "name": "wx_camera_1785117522080.jpg",
+   "date": "2026-07-27"
   }
  ]
 }

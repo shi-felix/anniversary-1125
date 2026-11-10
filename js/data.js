@@ -49,7 +49,7 @@ window.GIFT = {
   /* ---- 资源 ---- */
   music: 'assets/music/bgm.mp3',
   photoDir: 'assets/photos/',
-  photoCount: 111,
+  photoCount: 109,
 
   /* ---- 小弹窗上的短句（会循环贴到心形上）---- */
   wishes: [
