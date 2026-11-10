@@ -31,6 +31,18 @@ window.GIFT = {
   togetherDate: '2025-11-25', // 在一起的日子
   years: 1, // 第几个纪念日
 
+  /* ---- 入口口令 ----
+     点开网页先问这一句，答对才进去。
+     answer 改了就跟着改（2025-11-25 / 11月25日 / 1125 都认）；
+     rememberDays 是答对后这台设备记多久，0 表示每次都问。 */
+  lock: {
+    question: '我们在一起的纪念日，是哪一天？',
+    placeholder: 'YYYY.MM.DD',
+    hint: '答对了才会打开 · 这台设备记 30 天',
+    answer: '2025-11-25',
+    rememberDays: 30,
+  },
+
   /* ---- 主文案 ---- */
   mainMessage: '一周年快乐',
 
