@@ -514,32 +514,42 @@
       setTimeout(function () { if (flying === old) flying = -1; }, 480);
     }
 
-    var down = false, sx = 0, dx = 0, moved = false;
+    var down = false, sx = 0, sy = 0, dx = 0, dy = 0, downAt = 0;
     stage.addEventListener("pointerdown", function (e) {
-      down = true; sx = e.clientX; dx = 0; moved = false;
-      if (stage.setPointerCapture) stage.setPointerCapture(e.pointerId);
+      down = true; sx = e.clientX; sy = e.clientY; dx = 0; dy = 0; downAt = Date.now();
+      // 卡片里是 <img>，不拦下原生图片拖拽的话浏览器会立刻发 pointercancel，
+      // 手指/鼠标一动就被判定成"点了没动"，于是拖拽变成了打开大图。
+      if (stage.setPointerCapture) { try { stage.setPointerCapture(e.pointerId); } catch (err) {} }
     });
     stage.addEventListener("pointermove", function (e) {
       if (!down) return;
       dx = e.clientX - sx;
-      if (Math.abs(dx) > 4) moved = true;
+      dy = e.clientY - sy;
       var c = cards[cur];
       c.style.transition = "";
       c.style.transform = "translate3d(" + dx + "px," + (dx * 0.05).toFixed(1) + "px,0) rotate(" + (dx * 0.028).toFixed(2) + "deg)";
     });
-    function up() {
+    function up(e) {
       if (!down) return;
       down = false;
-      if (Math.abs(dx) > 68) {
+      var cancelled = !!(e && e.type === "pointercancel");
+      if (!cancelled && Math.abs(dx) > 68 && Math.abs(dx) > Math.abs(dy)) {
         go(dx < 0 ? cur + 1 : cur - 1);
-      } else {
-        place(false);
-        if (!moved) openLightbox(photos[cur].id);
+        return;
+      }
+      place(false);
+      // 只有"干净的一下点击"才开大图：没被取消、位移在两个方向都很小。
+      // 不看时长：手指按久一点（>0.7s）也算点击，不该被吞掉。
+      if (!cancelled && Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+        openLightbox(photos[cur].id);
       }
     }
     stage.addEventListener("pointerup", up);
     stage.addEventListener("pointercancel", up);
-    stage.addEventListener("pointerleave", function () { if (down) { down = false; place(false); } });
+    // 不再监听 pointerleave：setPointerCapture 之后浏览器会在 down/up 之间补发一次
+    // leave，把状态提前清掉，导致"点了没反应"。
+    // 彻底禁掉浏览器的原生拖拽（否则 pointer 会被 cancel）
+    stage.addEventListener("dragstart", function (e) { e.preventDefault(); });
 
     document.addEventListener("keydown", function (e) {
       if (LB.open) return;
@@ -586,6 +596,7 @@
       var i = 0;
       for (var k = 0; k < LB.list.length; k++) { if (LB.list[k].id === id) { i = k; break; } }
       LB.open = true;
+      LB.shownAt = Date.now();
       box.classList.add("on");
       document.body.style.overflow = "hidden";
       show(i);
@@ -602,7 +613,13 @@
     closeBtn.addEventListener("click", close);
     prev.addEventListener("click", function (e) { e.stopPropagation(); show(LB.i - 1); });
     next.addEventListener("click", function (e) { e.stopPropagation(); show(LB.i + 1); });
-    box.addEventListener("click", function (e) { if (e.target === box) close(); });
+    // 点背景关闭。刚打开的 360ms 内忽略：触摸端 pointerup 之后浏览器还会补一个
+    // click，那个 click 会落在刚出现的遮罩上，导致"点一下开了又立刻关掉"。
+    box.addEventListener("click", function (e) {
+      if (e.target !== box) return;
+      if (Date.now() - (LB.shownAt || 0) < 360) return;
+      close();
+    });
 
     document.addEventListener("keydown", function (e) {
       if (!LB.open) return;
