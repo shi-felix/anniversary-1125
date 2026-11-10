@@ -233,6 +233,10 @@
       var tmp = order[si]; order[si] = order[sj]; order[sj] = tmp;
     }
 
+    // 纹理进队，分批下水：不然 100 多个请求会把手上的带宽全抢走，
+    // 下面按月浏览的照片反而排在后面
+    var queue = [];
+
     for (var r = 0; r < ROWS; r++) {
       var slice = order.slice(r * per, (r + 1) * per);
       if (!slice.length) continue;
@@ -250,23 +254,35 @@
           mesh.rotation.y = a + Math.PI;
           mesh.userData.baseY = YS[r];
           group.add(mesh);
-
-          function applyTex(tex) {
-            if (tex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined) {
-              tex.colorSpace = THREE.SRGBColorSpace;
-            } else if (tex.encoding !== undefined && THREE.sRGBEncoding !== undefined) {
-              tex.encoding = THREE.sRGBEncoding;
-            }
-            tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-            mat.map = tex;
-            mat.needsUpdate = true;
-          }
-          loader.load(wallSrc(p), applyTex, undefined, function () {
-            if (WEBP && p.smallWebp) loader.load(BASE + p.mini, applyTex, undefined, function () {});
-          });
+          queue.push({ p: p, mat: mat });
         })(slice[j], j, r, step);
       }
     }
+
+    function applyTex(mat, tex) {
+      if (tex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined) {
+        tex.colorSpace = THREE.SRGBColorSpace;
+      } else if (tex.encoding !== undefined && THREE.sRGBEncoding !== undefined) {
+        tex.encoding = THREE.sRGBEncoding;
+      }
+      tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+      mat.map = tex;
+      mat.needsUpdate = true;
+    }
+
+    var BATCH = mobile ? 5 : 8;
+    function pump() {
+      var batch = queue.splice(0, BATCH);
+      batch.forEach(function (it) {
+        loader.load(wallSrc(it.p), function (tex) { applyTex(it.mat, tex); }, undefined, function () {
+          if (WEBP && it.p.smallWebp) {
+            loader.load(BASE + it.p.mini, function (tex) { applyTex(it.mat, tex); }, undefined, function () {});
+          }
+        });
+      });
+      if (queue.length) setTimeout(pump, mobile ? 140 : 60);
+    }
+    pump();
 
     var targetRotY = 0, rotY = 0, targetRotX = 0, rotX = 0, vel = 0;
     var dragging = false, lastX = 0, lastY = 0, fov = 56, targetFov = 56, lastMove = 0;
