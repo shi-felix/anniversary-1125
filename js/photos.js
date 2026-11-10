@@ -64,14 +64,33 @@
     document.head.appendChild(s);
   }
 
+  /* 等第一排照片先画出来，再让环绕墙去抢带宽 */
+  function firstRowReady(cb) {
+    var deadline = Date.now() + 3500;
+    var check = function () {
+      var cells = document.querySelectorAll(".cell img");
+      var need = Math.min(3, cells.length);
+      var ready = 0;
+      for (var i = 0; i < need; i++) {
+        var im = cells[i];
+        if (im.complete && im.naturalWidth > 0) ready++;
+      }
+      if ((need === 0) || ready >= need || Date.now() > deadline) { cb(); return; }
+      setTimeout(check, 120);
+    };
+    check();
+  }
+
   function startWall(d) {
     var mobile = window.innerWidth < 720;
-    var delay = mobile ? (SLOW ? 1500 : 800) : 160;
-    var go = function () {
-      setTimeout(function () { whenThree(function () { initWall(d); }); }, delay);
+    var delay = mobile ? (SLOW ? 1200 : 500) : 160;
+    var begin = function () {
+      firstRowReady(function () {
+        setTimeout(function () { whenThree(function () { initWall(d); }); }, delay);
+      });
     };
-    if (document.readyState === "complete") go();
-    else window.addEventListener("load", go, { once: true });
+    if (document.readyState === "complete") begin();
+    else window.addEventListener("load", begin, { once: true });
   }
 
   function boot() {
@@ -271,7 +290,10 @@
     }
 
     var BATCH = mobile ? 5 : 8;
+
     function pump() {
+      // 环绕墙滚出屏幕后，别再跟下面的照片抢带宽
+      if (!visible && queue.length) { setTimeout(pump, 400); return; }
       var batch = queue.splice(0, BATCH);
       batch.forEach(function (it) {
         loader.load(wallSrc(it.p), function (tex) { applyTex(it.mat, tex); }, undefined, function () {
@@ -282,7 +304,6 @@
       });
       if (queue.length) setTimeout(pump, mobile ? 140 : 60);
     }
-    pump();
 
     var targetRotY = 0, rotY = 0, targetRotX = 0, rotX = 0, vel = 0;
     var dragging = false, lastX = 0, lastY = 0, fov = 56, targetFov = 56, lastMove = 0;
@@ -357,6 +378,7 @@
     resize();
     wall = { resize: resize };
     requestAnimationFrame(frame);
+    pump();
 
     var rt = null;
     window.addEventListener("resize", function () {
